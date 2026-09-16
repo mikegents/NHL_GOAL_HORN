@@ -90,7 +90,7 @@ def main():
 
     while True:
         update_game()
-        time.sleep(10)
+        time.sleep(3)
 
 if __name__ == "__main__":
     main()
