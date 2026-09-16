@@ -3,6 +3,7 @@ from pathlib import Path
 import nhlpy
 from nhlpy import NHLClient
 import time
+from bluetooth import connect_speaker
 
 client=NHLClient(
         debug=True,
@@ -80,6 +81,8 @@ def handle_goal():
 
 
 def main():
+    connect_speaker()
+
     setup_todays_game()
 
     if game_id == None:

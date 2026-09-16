@@ -10,7 +10,6 @@ def play_sound():
                    str(soundFile)])
 
 
-
 def main():
     play_sound()
 
