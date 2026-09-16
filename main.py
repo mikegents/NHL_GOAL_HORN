@@ -1,4 +1,5 @@
 import subprocess
+import json
 from pathlib import Path
 import nhlpy
 from nhlpy import NHLClient
@@ -34,16 +35,17 @@ def setup_todays_game():
     print("No Habs Game Found")
 
 
-def update_game():
+def update_game(game_id):
+    print("getting score")
     global mtl_score
 
     boxscore = client.game_center.boxscore(game_id)
 
-    home_team = game["homeTeam"]["abbrev"]
-    away_team = game["awayTeam"]["abbrev"]
+    home_team = boxscore["homeTeam"]["abbrev"]
+    away_team = boxscore["awayTeam"]["abbrev"]
 
-    home_score = boxscore["homeTeam"]["score"]
-    away_score = boxscore["awayTeam"]["score"]
+    home_score = boxscore["homeTeam"].get("score",0)
+    away_score = boxscore["awayTeam"].get("score",0)
 
     if home_team == "MTL":
         new_mtl_score = home_score
@@ -79,18 +81,46 @@ def handle_goal():
     #TODO
     #turn_on_light()
 
+def write_scheudle_to_file():
+    daily_schedule = client.schedule.daily_schedule(date="2026-10-06")
+
+    with open("daily_schedule.json", "w") as file:
+        json.dump(daily_schedule, file, indent=4)
+
+
+def get_test_game(): 
+    global game_id
+    schedule = client.schedule.daily_schedule(date="2026-10-06")
+
+    for game in schedule["games"]:
+        home_team = game["homeTeam"]["abbrev"]
+        away_team = game["awayTeam"]["abbrev"]
+
+        if home_team == "MTL" or away_team == "MTL":
+            game_id = game["id"]
+            print("Habs game found")
+            print("Game ID:", game_id)
+
+            return
+    print("No Habs Game Found")   
+    
+
 
 def main():
     connect_speaker()
-
     setup_todays_game()
+    #write_scheudle_to_file()
+    #get_test_game()
 
     if game_id == None:
         return
 
     while True:
-        update_game()
-        time.sleep(10)
+        update_game(game_id)
+        time.sleep(3)
 
 if __name__ == "__main__":
     main()
+
+
+
